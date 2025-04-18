@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>คำนวณต้นทุนงานพิมพ์ 3D</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 700px; margin: auto; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    .result { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; }
+  </style>
+</head>
+<body>
+  <h1>📦 โปรแกรมคำนวณต้นทุนงานพิมพ์ 3D</h1>
+
+  <label>ชื่อสินค้า</label>
+  <input type="text" id="productName">
+
+  <label>น้ำหนักชิ้นงาน (g)</label>
+  <input type="number" id="weight">
+
+  <label>ต้นทุนฟิลาเมนต์ (บาท/กก.)</label>
+  <input type="number" id="filamentCost" value="300">
+
+  <label>เวลาในการพิมพ์ - ชั่วโมง</label>
+  <input type="number" id="hours">
+
+  <label>เวลาในการพิมพ์ - นาที</label>
+  <input type="number" id="minutes">
+
+  <label>ค่าไฟฟ้า (บาท/kWh)</label>
+  <input type="number" id="electricityCost" value="5">
+
+  <label>กำลังไฟของเครื่องพิมพ์ (kW)</label>
+  <input type="number" id="printerPower" value="0.3">
+
+  <label>ต้นทุนเครื่องพิมพ์ (บาท)</label>
+  <input type="number" id="printerCost" value="28194.88">
+
+  <label>อายุการใช้งานเครื่องพิมพ์ (ชั่วโมง)</label>
+  <input type="number" id="lifetimeHours" value="4800">
+
+  <label>อัตรากำไรที่ต้องการ (%)</label>
+  <input type="number" id="margin" value="100">
+
+  <button onclick="calculate()">คำนวณต้นทุน</button>
+
+  <div class="result" id="output"></div>
+
+  <script>
+    function calculate() {
+      const name = document.getElementById("productName").value;
+      const weight = parseFloat(document.getElementById("weight").value);
+      const filamentCostPerKg = parseFloat(document.getElementById("filamentCost").value);
+      const hours = parseFloat(document.getElementById("hours").value);
+      const minutes = parseFloat(document.getElementById("minutes").value);
+      const electricityCost = parseFloat(document.getElementById("electricityCost").value);
+      const printerPower = parseFloat(document.getElementById("printerPower").value);
+      const printerCost = parseFloat(document.getElementById("printerCost").value);
+      const lifetimeHours = parseFloat(document.getElementById("lifetimeHours").value);
+      const marginPercent = parseFloat(document.getElementById("margin").value);
+
+      const totalHours = hours + (minutes / 60);
+      const filamentCost = (filamentCostPerKg / 1000) * weight;
+      const powerCost = printerPower * totalHours * electricityCost;
+      const depreciation = (printerCost / lifetimeHours) * totalHours;
+      const totalCost = filamentCost + powerCost + depreciation;
+      const priceWithMargin = totalCost * (1 + marginPercent / 100);
+
+      document.getElementById("output").innerHTML = `
+        <h3>📌 ผลลัพธ์สำหรับ "${name}"</h3>
+        <p>💡 ค่าวัสดุ: ${filamentCost.toFixed(2)} บาท</p>
+        <p>⚡ ค่าไฟฟ้า: ${powerCost.toFixed(2)} บาท</p>
+        <p>🛠️ ค่าเสื่อมราคาเครื่องพิมพ์: ${depreciation.toFixed(2)} บาท</p>
+        <p><strong>💰 ต้นทุนรวม: ${totalCost.toFixed(2)} บาท</strong></p>
+        <p><strong>💵 ราคาขาย (กำไร ${marginPercent}%): ${priceWithMargin.toFixed(2)} บาท</strong></p>
+      `;
+    }
+  </script>
+</body>
+</html>
