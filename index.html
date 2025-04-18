@@ -4,13 +4,68 @@
   <meta charset="UTF-8">
   <title>คำนวณต้นทุนงานพิมพ์ 3D</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 700px; margin: auto; }
-    input, button { padding: 8px; margin: 5px 0; width: 100%; }
-    label { font-weight: bold; margin-top: 10px; display: block; }
-    .result { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; }
+    :root {
+      --bg: #1e1e1e;
+      --text: #ffffff;
+      --input-bg: #2c2c2c;
+      --border: #444;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+      transition: all 0.3s;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      background-color: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background-color: var(--input-bg);
+    }
+
+    .light-mode {
+      --bg: #ffffff;
+      --text: #000000;
+      --input-bg: #f2f2f2;
+      --border: #ccc;
+    }
+
+    .toggle-btn {
+      background-color: transparent;
+      color: var(--text);
+      border: none;
+      float: right;
+      margin-top: -30px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
+  <button class="toggle-btn" onclick="toggleMode()">🌙 เปลี่ยนโหมด</button>
   <h1>📦 โปรแกรมคำนวณต้นทุนงานพิมพ์ 3D</h1>
 
   <label>ชื่อสินค้า</label>
@@ -71,10 +126,14 @@
         <h3>📌 ผลลัพธ์สำหรับ "${name}"</h3>
         <p>💡 ค่าวัสดุ: ${filamentCost.toFixed(2)} บาท</p>
         <p>⚡ ค่าไฟฟ้า: ${powerCost.toFixed(2)} บาท</p>
-        <p>🛠️ ค่าเสื่อมราคาเครื่องพิมพ์: ${depreciation.toFixed(2)} บาท</p>
+        <p>🛠️ ค่าเสื่อมเครื่องพิมพ์: ${depreciation.toFixed(2)} บาท</p>
         <p><strong>💰 ต้นทุนรวม: ${totalCost.toFixed(2)} บาท</strong></p>
         <p><strong>💵 ราคาขาย (กำไร ${marginPercent}%): ${priceWithMargin.toFixed(2)} บาท</strong></p>
       `;
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("light-mode");
     }
   </script>
 </body>
