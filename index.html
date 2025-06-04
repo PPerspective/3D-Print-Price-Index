@@ -98,6 +98,9 @@
   <label>อัตรากำไรที่ต้องการ (%)</label>
   <input type="number" id="margin" value="100">
 
+  <label>ราคาที่คุณตั้งขาย (บาท)</label>
+  <input type="number" id="yourPrice" value="0">
+
   <button onclick="calculate()">คำนวณต้นทุน</button>
 
   <div class="result" id="output"></div>
@@ -114,6 +117,7 @@
       const printerCost = parseFloat(document.getElementById("printerCost").value);
       const lifetimeHours = parseFloat(document.getElementById("lifetimeHours").value);
       const marginPercent = parseFloat(document.getElementById("margin").value);
+      const yourPrice = parseFloat(document.getElementById("yourPrice").value);
 
       const totalHours = hours + (minutes / 60);
       const filamentCost = (filamentCostPerKg / 1000) * weight;
@@ -122,6 +126,17 @@
       const totalCost = filamentCost + powerCost + depreciation;
       const priceWithMargin = totalCost * (1 + marginPercent / 100);
 
+      let profitInfo = "";
+      if (yourPrice > 0) {
+        const profitBaht = yourPrice - totalCost;
+        const profitPercent = (profitBaht / totalCost) * 100;
+        profitInfo = `
+          <p>📈 ราคาที่ตั้งขาย: ${yourPrice.toFixed(2)} บาท</p>
+          <p>💸 กำไรสุทธิ: ${profitBaht.toFixed(2)} บาท</p>
+          <p>📊 คิดเป็นกำไร: ${profitPercent.toFixed(2)}%</p>
+        `;
+      }
+
       document.getElementById("output").innerHTML = `
         <h3>📌 ผลลัพธ์สำหรับ "${name}"</h3>
         <p>💡 ค่าวัสดุ: ${filamentCost.toFixed(2)} บาท</p>
@@ -129,6 +144,7 @@
         <p>🛠️ ค่าเสื่อมเครื่องพิมพ์: ${depreciation.toFixed(2)} บาท</p>
         <p><strong>💰 ต้นทุนรวม: ${totalCost.toFixed(2)} บาท</strong></p>
         <p><strong>💵 ราคาขาย (กำไร ${marginPercent}%): ${priceWithMargin.toFixed(2)} บาท</strong></p>
+        ${profitInfo}
       `;
     }
 
