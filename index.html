@@ -70,6 +70,16 @@
     th {
       background-color: var(--input-bg);
     }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-group button {
+      width: 50%;
+    }
   </style>
 </head>
 <body>
@@ -112,7 +122,10 @@
   <label>ราคาที่คุณตั้งขาย (บาท)</label>
   <input type="number" id="yourPrice" value="0">
 
-  <button onclick="calculate()">➕ เพิ่มลงตาราง</button>
+  <div class="btn-group">
+    <button onclick="calculate()">➕ เพิ่มลงตาราง</button>
+    <button onclick="removeLast()">🗑️ ลบรายการล่าสุด</button>
+  </div>
 
   <table id="resultTable">
     <thead>
@@ -178,6 +191,13 @@
       `;
 
       tbody.appendChild(row);
+    }
+
+    function removeLast() {
+      const tbody = document.querySelector("#resultTable tbody");
+      if (tbody.lastChild) {
+        tbody.removeChild(tbody.lastChild);
+      }
     }
   </script>
 </body>
