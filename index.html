@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>คำนวณต้นทุนงานพิมพ์ 3D</title>
+  <title>3D Print Cost Calculator</title>
   <style>
     :root {
       --bg: #1e1e1e;
@@ -16,12 +16,12 @@
       background-color: var(--bg);
       color: var(--text);
       padding: 20px;
-      max-width: 700px;
+      max-width: 1000px;
       margin: auto;
       transition: all 0.3s;
     }
 
-    input, button {
+    input, button, select {
       padding: 10px;
       margin: 5px 0;
       width: 100%;
@@ -35,14 +35,6 @@
       font-weight: bold;
       margin-top: 10px;
       display: block;
-    }
-
-    .result {
-      margin-top: 20px;
-      padding: 15px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background-color: var(--input-bg);
     }
 
     .light-mode {
@@ -62,26 +54,48 @@
       cursor: pointer;
       font-size: 0.9rem;
     }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background-color: var(--input-bg);
+    }
   </style>
 </head>
 <body>
   <button class="toggle-btn" onclick="toggleMode()">🌙 เปลี่ยนโหมด</button>
   <h1>📦 โปรแกรมคำนวณต้นทุนงานพิมพ์ 3D</h1>
 
+  <label>SKU</label>
+  <input type="text" id="sku">
+
   <label>ชื่อสินค้า</label>
   <input type="text" id="productName">
 
+  <label>ชนิดฟิลาเมนต์</label>
+  <input type="text" id="filamentType" value="PETG">
+
   <label>น้ำหนักชิ้นงาน (g)</label>
   <input type="number" id="weight">
-
-  <label>ต้นทุนฟิลาเมนต์ (บาท/กก.)</label>
-  <input type="number" id="filamentCost" value="300">
 
   <label>เวลาในการพิมพ์ - ชั่วโมง</label>
   <input type="number" id="hours">
 
   <label>เวลาในการพิมพ์ - นาที</label>
   <input type="number" id="minutes">
+
+  <label>ต้นทุนฟิลาเมนต์ (บาท/กก.)</label>
+  <input type="number" id="filamentCost" value="300">
 
   <label>ค่าไฟฟ้า (บาท/kWh)</label>
   <input type="number" id="electricityCost" value="5">
@@ -95,61 +109,75 @@
   <label>อายุการใช้งานเครื่องพิมพ์ (ชั่วโมง)</label>
   <input type="number" id="lifetimeHours" value="4800">
 
-  <label>อัตรากำไรที่ต้องการ (%)</label>
-  <input type="number" id="margin" value="100">
-
   <label>ราคาที่คุณตั้งขาย (บาท)</label>
   <input type="number" id="yourPrice" value="0">
 
-  <button onclick="calculate()">คำนวณต้นทุน</button>
+  <button onclick="calculate()">➕ เพิ่มลงตาราง</button>
 
-  <div class="result" id="output"></div>
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>SKU</th>
+        <th>Name</th>
+        <th>Filament Type</th>
+        <th>น้ำหนัก (g)</th>
+        <th>(ชม.)</th>
+        <th>(นาที)</th>
+        <th>ต้นทุน Filament</th>
+        <th>ต้นทุนไฟฟ้า</th>
+        <th>ต้นทุนรวม</th>
+        <th>กำไร (%)</th>
+        <th>ราคาขาย</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
+    function toggleMode() {
+      document.body.classList.toggle("light-mode");
+    }
+
     function calculate() {
+      const sku = document.getElementById("sku").value;
       const name = document.getElementById("productName").value;
+      const filamentType = document.getElementById("filamentType").value;
       const weight = parseFloat(document.getElementById("weight").value);
-      const filamentCostPerKg = parseFloat(document.getElementById("filamentCost").value);
       const hours = parseFloat(document.getElementById("hours").value);
       const minutes = parseFloat(document.getElementById("minutes").value);
+      const filamentCostPerKg = parseFloat(document.getElementById("filamentCost").value);
       const electricityCost = parseFloat(document.getElementById("electricityCost").value);
       const printerPower = parseFloat(document.getElementById("printerPower").value);
       const printerCost = parseFloat(document.getElementById("printerCost").value);
       const lifetimeHours = parseFloat(document.getElementById("lifetimeHours").value);
-      const marginPercent = parseFloat(document.getElementById("margin").value);
-      const yourPrice = parseFloat(document.getElementById("yourPrice").value);
+      const sellingPrice = parseFloat(document.getElementById("yourPrice").value);
 
       const totalHours = hours + (minutes / 60);
       const filamentCost = (filamentCostPerKg / 1000) * weight;
       const powerCost = printerPower * totalHours * electricityCost;
       const depreciation = (printerCost / lifetimeHours) * totalHours;
       const totalCost = filamentCost + powerCost + depreciation;
-      const priceWithMargin = totalCost * (1 + marginPercent / 100);
+      const profitBaht = sellingPrice - totalCost;
+      const profitPercent = sellingPrice > 0 ? (profitBaht / totalCost) * 100 : 0;
 
-      let profitInfo = "";
-      if (yourPrice > 0) {
-        const profitBaht = yourPrice - totalCost;
-        const profitPercent = (profitBaht / totalCost) * 100;
-        profitInfo = `
-          <p>📈 ราคาที่ตั้งขาย: ${yourPrice.toFixed(2)} บาท</p>
-          <p>💸 กำไรสุทธิ: ${profitBaht.toFixed(2)} บาท</p>
-          <p>📊 คิดเป็นกำไร: ${profitPercent.toFixed(2)}%</p>
-        `;
-      }
+      const tbody = document.querySelector("#resultTable tbody");
+      const row = document.createElement("tr");
 
-      document.getElementById("output").innerHTML = `
-        <h3>📌 ผลลัพธ์สำหรับ "${name}"</h3>
-        <p>💡 ค่าวัสดุ: ${filamentCost.toFixed(2)} บาท</p>
-        <p>⚡ ค่าไฟฟ้า: ${powerCost.toFixed(2)} บาท</p>
-        <p>🛠️ ค่าเสื่อมเครื่องพิมพ์: ${depreciation.toFixed(2)} บาท</p>
-        <p><strong>💰 ต้นทุนรวม: ${totalCost.toFixed(2)} บาท</strong></p>
-        <p><strong>💵 ราคาขาย (กำไร ${marginPercent}%): ${priceWithMargin.toFixed(2)} บาท</strong></p>
-        ${profitInfo}
+      row.innerHTML = `
+        <td>${sku}</td>
+        <td>${name}</td>
+        <td>${filamentType}</td>
+        <td>${weight.toFixed(2)}</td>
+        <td>${hours}</td>
+        <td>${minutes}</td>
+        <td>${filamentCost.toFixed(2)}</td>
+        <td>${powerCost.toFixed(2)}</td>
+        <td>${totalCost.toFixed(2)}</td>
+        <td>${profitPercent.toFixed(2)}%</td>
+        <td>${sellingPrice.toFixed(2)}</td>
       `;
-    }
 
-    function toggleMode() {
-      document.body.classList.toggle("light-mode");
+      tbody.appendChild(row);
     }
   </script>
 </body>
