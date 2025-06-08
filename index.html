@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>3D Print Cost Calculator</title>
+  <title>คำนวณต้นทุน 3D Printing</title>
   <style>
     :root {
       --bg: #1e1e1e;
@@ -18,11 +18,10 @@
       padding: 20px;
       max-width: 1000px;
       margin: auto;
-      transition: all 0.3s;
     }
 
     input, button, select {
-      padding: 10px;
+      padding: 8px;
       margin: 5px 0;
       width: 100%;
       background-color: var(--input-bg);
@@ -58,13 +57,13 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 25px;
+      margin-top: 20px;
     }
 
     th, td {
-      padding: 10px;
-      text-align: center;
       border: 1px solid var(--border);
+      padding: 8px;
+      text-align: center;
     }
 
     th {
@@ -74,11 +73,10 @@
     .btn-group {
       display: flex;
       gap: 10px;
-      margin-top: 10px;
     }
 
     .btn-group button {
-      width: 50%;
+      flex: 1;
     }
   </style>
 </head>
@@ -92,7 +90,7 @@
   <label>ชื่อสินค้า</label>
   <input type="text" id="productName">
 
-  <label>ชนิดฟิลาเมนต์</label>
+  <label>ประเภทฟิลาเมนต์</label>
   <input type="text" id="filamentType" value="PETG">
 
   <label>น้ำหนักชิ้นงาน (g)</label>
@@ -124,10 +122,10 @@
 
   <div class="btn-group">
     <button onclick="calculate()">➕ เพิ่มลงตาราง</button>
-    <button onclick="removeLast()">🗑️ ลบรายการล่าสุด</button>
+    <button onclick="deleteLastRow()">🗑️ ลบแถวล่าสุด</button>
   </div>
 
-  <table id="resultTable">
+  <table id="outputTable">
     <thead>
       <tr>
         <th>SKU</th>
@@ -135,15 +133,16 @@
         <th>Filament Type</th>
         <th>น้ำหนัก (g)</th>
         <th>(ชม.)</th>
-        <th>(นาที)</th>
+        <th>(น.)</th>
         <th>ต้นทุน Filament</th>
         <th>ต้นทุนไฟฟ้า</th>
         <th>ต้นทุนรวม</th>
+        <th>ราคาตั้งขาย</th>
+        <th>Margin (บาท)</th>
         <th>กำไร (%)</th>
-        <th>ราคาขาย</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="tableBody"></tbody>
   </table>
 
   <script>
@@ -163,40 +162,41 @@
       const printerPower = parseFloat(document.getElementById("printerPower").value);
       const printerCost = parseFloat(document.getElementById("printerCost").value);
       const lifetimeHours = parseFloat(document.getElementById("lifetimeHours").value);
-      const sellingPrice = parseFloat(document.getElementById("yourPrice").value);
+      const yourPrice = parseFloat(document.getElementById("yourPrice").value);
 
       const totalHours = hours + (minutes / 60);
       const filamentCost = (filamentCostPerKg / 1000) * weight;
       const powerCost = printerPower * totalHours * electricityCost;
       const depreciation = (printerCost / lifetimeHours) * totalHours;
       const totalCost = filamentCost + powerCost + depreciation;
-      const profitBaht = sellingPrice - totalCost;
-      const profitPercent = sellingPrice > 0 ? (profitBaht / totalCost) * 100 : 0;
 
-      const tbody = document.querySelector("#resultTable tbody");
-      const row = document.createElement("tr");
+      let profitBaht = yourPrice - totalCost;
+      let profitPercent = profitBaht > 0 ? (profitBaht / totalCost) * 100 : 0;
 
-      row.innerHTML = `
-        <td>${sku}</td>
-        <td>${name}</td>
-        <td>${filamentType}</td>
-        <td>${weight.toFixed(2)}</td>
-        <td>${hours}</td>
-        <td>${minutes}</td>
-        <td>${filamentCost.toFixed(2)}</td>
-        <td>${powerCost.toFixed(2)}</td>
-        <td>${totalCost.toFixed(2)}</td>
-        <td>${profitPercent.toFixed(2)}%</td>
-        <td>${sellingPrice.toFixed(2)}</td>
+      const row = `
+        <tr>
+          <td>${sku}</td>
+          <td>${name}</td>
+          <td>${filamentType}</td>
+          <td>${weight.toFixed(2)}</td>
+          <td>${hours}</td>
+          <td>${minutes}</td>
+          <td>${filamentCost.toFixed(2)}</td>
+          <td>${powerCost.toFixed(2)}</td>
+          <td>${totalCost.toFixed(2)}</td>
+          <td>${yourPrice.toFixed(2)}</td>
+          <td>${profitBaht.toFixed(2)}</td>
+          <td>${profitPercent.toFixed(2)}%</td>
+        </tr>
       `;
 
-      tbody.appendChild(row);
+      document.getElementById("tableBody").innerHTML += row;
     }
 
-    function removeLast() {
-      const tbody = document.querySelector("#resultTable tbody");
-      if (tbody.lastChild) {
-        tbody.removeChild(tbody.lastChild);
+    function deleteLastRow() {
+      const tableBody = document.getElementById("tableBody");
+      if (tableBody.rows.length > 0) {
+        tableBody.deleteRow(tableBody.rows.length - 1);
       }
     }
   </script>
